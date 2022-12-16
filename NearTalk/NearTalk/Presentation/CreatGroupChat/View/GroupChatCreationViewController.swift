@@ -15,7 +15,7 @@ import UIKit
 final class CreateGroupChatViewController: PhotoImagePickerViewController {
     
     // MARK: - Proporties
-    private let pickerComponentList: [Int] = Array((10...100))
+    private let pickerComponentList: [Int] = Array((4...10))
     private let viewModel: CreateGroupChatViewModel
     private let disposeBag: DisposeBag = DisposeBag()
     
@@ -38,22 +38,24 @@ final class CreateGroupChatViewController: PhotoImagePickerViewController {
     private lazy var thumbnailImageView: UIImageView = UIImageView().then {
         $0.layer.cornerRadius = Metric.cornerRadius
         $0.clipsToBounds = true
-        $0.backgroundColor = .systemOrange
+        $0.backgroundColor = .primaryColor
         $0.isUserInteractionEnabled = true
     }
 
     private lazy var titleTextField: UITextField = UITextField().then {
-        $0.backgroundColor = .separator
         $0.attributedPlaceholder = NSAttributedString(string: "채팅방 제목을 입력해주세요.",
-                                                      attributes: [ NSAttributedString.Key.foregroundColor: UIColor.label ?? .white ])
+                                                      attributes: [ NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel ?? .white ])
+        $0.backgroundColor = .secondaryBackground
         $0.borderStyle = .roundedRect
+        $0.layer.borderColor = UIColor.secondaryLabel?.cgColor
     }
 
     private lazy var descriptionTextField: UITextField = UITextField().then {
-        $0.backgroundColor = .separator
         $0.attributedPlaceholder = NSAttributedString(string: "채팅방 상세설명을 입력해주세요.",
-                                                      attributes: [ NSAttributedString.Key.foregroundColor: UIColor.label ?? .white ])
+                                                      attributes: [ NSAttributedString.Key.foregroundColor: UIColor.secondaryLabel ?? .white ])
+        $0.backgroundColor = .secondaryBackground
         $0.borderStyle = .roundedRect
+        $0.layer.borderColor = UIColor.secondaryLabel?.cgColor
     }
     
     private lazy var pickerLabel: UILabel = UILabel().then {
@@ -77,7 +79,7 @@ final class CreateGroupChatViewController: PhotoImagePickerViewController {
         $0.setTitle("채팅방 생성하기", for: .normal)
         $0.titleLabel?.font = .systemFont(ofSize: Metric.buttonFontSize, weight: .bold)
         $0.layer.cornerRadius = Metric.cornerRadius
-        $0.backgroundColor = .systemOrange
+        $0.backgroundColor = .primaryColor
         $0.isEnabled = false
         $0.alpha = 0.7
     }
@@ -272,6 +274,7 @@ private extension CreateGroupChatViewController {
     }
 }
 
+// MARK: - UIPickerViewDelegate, UIPickerViewDataSource
 extension CreateGroupChatViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         1

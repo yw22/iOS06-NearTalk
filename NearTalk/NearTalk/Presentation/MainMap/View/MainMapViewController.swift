@@ -6,8 +6,8 @@
 //
 
 import CoreLocation
-import MapKit
 import Kingfisher
+import MapKit
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -31,10 +31,10 @@ final class MainMapViewController: UIViewController {
         $0.layoutMargins = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
         $0.isLayoutMarginsRelativeArrangement = true
     }
-    private lazy var userProfileImage: UIImageView = .init().then { [weak self] in
+    private let userProfileImage: UIImageView = .init().then {
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 10
-        $0.contentMode = .scaleAspectFit
+        $0.contentMode = .scaleAspectFill
         $0.image = UIImage(named: "Logo")
     }
     private let userLocationLabel: UILabel = .init().then {
@@ -71,10 +71,10 @@ final class MainMapViewController: UIViewController {
         }
         
         let imageConfig = UIImage.SymbolConfiguration(pointSize: 40)
-        let normalImage = UIImage(systemName: "message.badge.circle")?
+        let normalImage = UIImage(systemName: "message.circle")?
             .withTintColor(normalColor, renderingMode: .alwaysOriginal)
             .withConfiguration(imageConfig)
-        let highlightImage = UIImage(systemName: "message.badge.circle")?
+        let highlightImage = UIImage(systemName: "message.circle")?
             .withTintColor(highlightedColor, renderingMode: .alwaysOriginal)
             .withConfiguration(imageConfig)
         
@@ -113,6 +113,9 @@ final class MainMapViewController: UIViewController {
         if let profileImagePath = UserDefaults.standard.object(forKey: UserDefaultsKey.profileImagePath.string) as? String {
             self.fetch(path: profileImagePath)
         }
+        
+        self.locationManagerDidChangeAuthorization(self.locationManager)
+        self.locationManager.startUpdatingLocation()
     }
     
     // MARK: - Methods
@@ -323,21 +326,31 @@ final class MainMapViewController: UIViewController {
         let geocoder = CLGeocoder()
         let locale = Locale(identifier: "Ko-kr")
         geocoder.reverseGeocodeLocation(userLocation, preferredLocale: locale) { [weak self] (placeMarks, _) in
-            guard let placeMarks = placeMarks,
-                  let city = placeMarks.last?.locality,
-                  let dong = placeMarks.last?.subLocality,
-                  let name = placeMarks.last?.name
+            guard let placeMark = placeMarks?.last
             else {
                 return
             }
             
-            self?.userLocationLabel.text = "\(city) \(dong) \(name)"
+            let city = placeMark.locality ?? ""
+            let dong = placeMark.subLocality ?? ""
+            let name = placeMark.name ?? ""
+            
+            self?.userLocationLabel.text = "\(city) \(dong) \(name)".trimmingCharacters(in: .whitespacesAndNewlines)
         }
     }
 }
 
 extension MainMapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation is MKUserLocation {
+            let userLocationView = MKUserLocationView(annotation: annotation, reuseIdentifier: nil)
+            userLocationView.canShowCallout = false
+            userLocationView.isEnabled = false
+            userLocationView.tintColor = .tertiaryColor
+
+            return userLocationView
+        }
+        
         guard let chatRoomAnnotation = annotation as? ChatRoomAnnotation
         else {
             return nil
@@ -382,14 +395,13 @@ extension MainMapViewController: MKMapViewDelegate {
 extension MainMapViewController: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
-        case .notDetermined:
+        case .notDetermined, .restricted, .denied:
             manager.requestWhenInUseAuthorization()
-        case .authorizedAlways, .authorizedWhenInUse:
+        case .authorizedWhenInUse, .authorizedAlways:
+            manager.desiredAccuracy = kCLLocationAccuracyBest
             manager.startUpdatingLocation()
-        case .restricted, .denied:
+        default:
             manager.requestWhenInUseAuthorization()
-        @unknown default:
-            return
         }
     }
 }

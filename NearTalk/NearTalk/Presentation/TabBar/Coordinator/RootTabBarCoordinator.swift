@@ -49,7 +49,7 @@ final class RootTabBarCoordinator: Coordinator {
             case .friendList:
                 return UIImage(systemName: "person.3")?.withTintColor(color)
             case .myProfile:
-                return UIImage(systemName: "person")?.withTintColor(color)
+                return UIImage(systemName: "person.text.rectangle")?.withTintColor(color)
             }
         }
         
@@ -67,7 +67,7 @@ final class RootTabBarCoordinator: Coordinator {
             case .friendList:
                 return UIImage(systemName: "person.3.fill")?.withTintColor(color)
             case .myProfile:
-                return UIImage(systemName: "person.fill")?.withTintColor(color)
+                return UIImage(systemName: "person.text.rectangle.fill")?.withTintColor(color)
             }
         }
     }

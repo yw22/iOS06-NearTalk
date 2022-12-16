@@ -38,18 +38,12 @@ final class DefaultFriendListViewModel: FriendListViewModel {
         self.fetchFriendListUseCase = fetchFriendListUseCase
         self.actions = actions
         
-        self.fetchFriendListUseCase.getFriendsData()
-            .subscribe(onSuccess: { [weak self] (model: [Friend]) in
-                self?.friendsData.accept(model)
-            })
-            .disposed(by: self.disposeBag)
+        self.reload()
     }
     
     // MARK: - INPUT
     
     func reload() {
-        self.fetchFriendListUseCase.reload()
-        
         self.fetchFriendListUseCase.getFriendsData()
             .subscribe(onSuccess: { [weak self] (model: [Friend]) in
                 self?.friendsData.accept(model)
@@ -58,11 +52,15 @@ final class DefaultFriendListViewModel: FriendListViewModel {
     }
     
     func didSelectItem(userUUID: String) {
-        print(userUUID)
         self.actions?.showDetailFriend(userUUID)
     }
     
     func addFriend(uuid: String) -> Completable {
+        self.friendsData.value.forEach { list in
+            if list.userID == uuid {
+                return
+            }
+        }
         return self.fetchFriendListUseCase.addFriend(uuid: uuid)
     }
     

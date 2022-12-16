@@ -34,6 +34,10 @@ final class FriendListViewController: UIViewController {
         return view
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        self.viewModel.reload()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -115,11 +119,9 @@ final class FriendListViewController: UIViewController {
         let layout = UICollectionViewCompositionalLayout(section: section)
         return layout
     }
-    
-    func showAlert() {
-        let alert = UIAlertController(title: "친구추가", message: "UUID를 입력해주세요", preferredStyle: UIAlertController.Style.alert)
-        
-        alert.addTextField()
+
+    func showOptions() {
+        let alert = UIAlertController(title: "친구추가", message: "친구추가 방법을 선택해주세요", preferredStyle: UIAlertController.Style.actionSheet)
         
         let cancelAction =  UIAlertAction(title: "취소", style: UIAlertAction.Style.cancel)
         let addFriendAction = UIAlertAction(title: "친구추가", style: UIAlertAction.Style.default) { [weak self] _ in
